@@ -33,4 +33,5 @@ def get_points():
         con.close()
         return points
 
-print (points.get_points())
+if __name__ == "__main__":
+    print (points.get_points())

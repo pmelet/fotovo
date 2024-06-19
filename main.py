@@ -53,11 +53,12 @@ def get_production_info(session):
         watts  = p['wNow'],
     )
 
-setup_database()
-session = get_session_cookie()
-while True:
-    p = get_production_info(session)
-    print (p)
-    p.commit()
-    print (points.get_points())
-    time.sleep(30)
+if __name__ == "__main__":
+    setup_database()
+    session = get_session_cookie()
+    while True:
+        p = get_production_info(session)
+        print (p)
+        p.commit()
+        print (points.get_points())
+        time.sleep(30)
