@@ -1,1 +1,3 @@
 configuration.py
+production.db
+__pycache__
