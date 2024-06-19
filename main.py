@@ -13,21 +13,6 @@ def table_exists(table_name):
     conn.close()
     return result is not None
 
-def setup_database():
-    try:
-        con = sql.connect('production.db') 
-        cur = con.cursor()     
-        cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Watts REAL, Active INT)") 
-        con.commit() 
-    except Exception as e: 
-        if con: 
-            con.rollback() 
-        print("Unexpected error %s:" % e.args[0]) 
-    finally: 
-        if con: 
-            con.close()  
-
-
 def get_session_cookie():
     url = "https://192.168.1.63/auth/check_jwt"
     headers = {"Authorization": "Bearer " + configuration._TOKEN}
@@ -48,17 +33,21 @@ def get_production_info(session):
     j = r.json()
     p = j['production'][0]
     return points.Point(
-        time   = p['readingTime'],
-        active = p['activeCount'],
-        watts  = p['wNow'],
+        time     = int(time.time()),
+        readtime = p['readingTime'],
+        active   = p['activeCount'],
+        watts    = p['wNow'],
     )
 
 if __name__ == "__main__":
-    setup_database()
+    points.setup_database()
     session = get_session_cookie()
     while True:
         p = get_production_info(session)
         print (p)
         p.commit()
         print (points.get_points())
-        time.sleep(30)
+        if p.watts > 0.0:
+            time.sleep(30) # 30 seconds if we're producing
+        else:
+            time.sleep(900) # 15 minutes if we're not producing
