@@ -42,14 +42,15 @@ def get_production_info(session):
 if __name__ == "__main__":
     points.setup_database()
     session = get_session_cookie()
+    previous = 0
     while True:
         p = get_production_info(session)
         print (p)
-        p.commit()
+        if previous != p.watts:
+            p.commit() # no need to repeat the same value
+        previous = p.watts
         print (points.get_points())
-        if p.watts > 100.0:
-            time.sleep(60) # 60 seconds if we're producing
-        elif p.watts > 0.0:
-            time.sleep(120) # 2 minutes if we're producing a little
+        if p.watts > 0.0:
+            time.sleep(30) # 30 seconds if we're producing
         else:
             time.sleep(900) # 15 minutes if we're not producing
