@@ -47,7 +47,9 @@ if __name__ == "__main__":
         print (p)
         p.commit()
         print (points.get_points())
-        if p.watts > 0.0:
-            time.sleep(30) # 30 seconds if we're producing
+        if p.watts > 100.0:
+            time.sleep(60) # 60 seconds if we're producing
+        elif p.watts > 0.0:
+            time.sleep(120) # 2 minutes if we're producing a little
         else:
             time.sleep(900) # 15 minutes if we're not producing
