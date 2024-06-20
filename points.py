@@ -20,6 +20,13 @@ class Point:
         con.commit()
         con.close()
 
+    def to_dict(self):
+        return {
+            "time": self.time,
+            "readtime" : self.readtime,
+            "watts" : self.watts,
+            "active": self.active,
+        }
 
     def __str__(self):
         return f"{self.time}: {self.watts} ({self.active})"
@@ -32,7 +39,10 @@ def get_points():
         points = cur.fetchall()
         con.commit()
         con.close()
-        return points
+        ret = []
+        for p in points:
+            ret.append(Point(*p))
+        return ret
 
 
 def setup_database():
@@ -50,4 +60,4 @@ def setup_database():
             con.close()  
 
 if __name__ == "__main__":
-    print (points.get_points())
+    print ("\n".join(map(str,points.get_points())))
