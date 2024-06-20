@@ -46,8 +46,8 @@ function render(array){
                     y2: 1
                 },
                 stops: [
-                    [0, '#ff0000'],
-                    [1, '#0000ff']
+                    [0, '#ffcccc'],
+                    [1, '#ccccff']
                 ]
             },
             marker: { enabled: false }
