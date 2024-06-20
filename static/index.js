@@ -3,6 +3,14 @@ function render(array){
 
     data = array.production.map(x => [x.time*1000, x.watts])
 
+    Highcharts.setOptions(
+        {
+            time : {
+                timezone: 'Europe/Paris',
+            },
+        }
+    )
+
     Highcharts.chart('container', {
         chart: {
             type: 'spline'
@@ -15,9 +23,6 @@ function render(array){
             type: 'datetime',
             title: {
                 text: 'Time'
-            },
-            time : {
-                timezone: 'Europe/Paris',
             },
         },
         yAxis: {
