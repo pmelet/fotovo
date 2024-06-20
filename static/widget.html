@@ -5,10 +5,26 @@
     font-size: 2em;
 }
         </style>
+        <script>
+document.addEventListener('DOMContentLoaded', function(){
+    let url = "production"
+    const options = { method: 'GET' };
+    fetch(url, options)
+        .then(res => res.json())
+        .then(out => render(out.production[out.production.length-1]))
+        .catch(err => { throw err });
+})
+
+function render(entry){
+    document.getElementById("watts").innerHTML = entry.watts
+}
+
+
+        </script>
     </header>
     <body>
-        <div class="widget">
-            1538 W
+        <div class="widget" id="watts">
+            ?
         </div>
     </body>
 </html>
