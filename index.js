@@ -53,7 +53,7 @@ Highcharts.chart('container', {
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-    let url = "http://192.168.1.25:8000"
+    let url = "http://e.melet.net/production.json"
     const options = { method: 'GET' };
     fetch(url, options)
         .then(res => res.json())
