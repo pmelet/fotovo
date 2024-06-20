@@ -1,9 +1,8 @@
-import requests
-import configuration
-import points
 import sqlite3 as sql
-import time
 from os.path import join, dirname
+from datetime import date, datetime
+import time
+import pytz
 
 _DATABASE = join(dirname(__file__), 'production.db')
 
@@ -34,18 +33,46 @@ class Point:
         return f"{self.time}: {self.watts} ({self.active})"
 
 def get_points():
-        con = sql.connect(_DATABASE) 
-        cur = con.cursor()
-        q = """SELECT Time, Readtime, Watts, Active FROM production;"""
-        cur.execute(q)
-        points = cur.fetchall()
-        con.commit()
-        con.close()
-        ret = []
-        for p in points:
-            ret.append(Point(*p))
-        return ret
+    con = sql.connect(_DATABASE) 
+    cur = con.cursor()
+    q = """SELECT Time, Readtime, Watts, Active FROM production;"""
+    cur.execute(q)
+    points = cur.fetchall()
+    con.commit()
+    con.close()
+    ret = []
+    for p in points:
+        ret.append(Point(*p))
+    return ret
 
+def get_stats():
+    #timezone = pytz.timezone("Europe/Paris")
+    con = sql.connect(_DATABASE) 
+    cur = con.cursor()
+    q = f"""select 
+        strftime("{date.today().strftime("%Y-%m-%d")} %H:00", datetime(Time, 'unixepoch')), 
+        avg(Watts), 
+        min(Watts), 
+        max(Watts) 
+    from production 
+    group by 1;"""
+    cur.execute(q)
+    points = cur.fetchall()
+    con.commit()
+    con.close()
+    ret = []
+    for p in points:
+        slot, avg, min, max = p
+        #dt = timezone.localize(datetime.strptime(slot, "%Y-%m-%d %H:%M"))
+        dt = datetime.strptime(slot, "%Y-%m-%d %H:%M")
+        epoch = time.mktime(dt.timetuple())
+        ret.append({
+            "time": dt.replace(tzinfo=pytz.utc).timestamp(),
+            "min":  min,
+            "avg":  avg,
+            "max":  max,
+        })
+    return ret
 
 def setup_database():
     try:
@@ -62,4 +89,4 @@ def setup_database():
             con.close()  
 
 if __name__ == "__main__":
-    print ("\n".join(map(str,points.get_points())))
+    print ("\n".join(map(str,get_stats())))

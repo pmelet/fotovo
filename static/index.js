@@ -2,6 +2,10 @@
 function render(array){
 
     data = array.production.map(x => [x.time*1000, x.watts])
+    avg = array.stats.map(x => [x.time*1000, x.avg])
+    min = array.stats.map(x => [x.time*1000, x.min])
+    max = array.stats.map(x => [x.time*1000, x.max])
+    stats = array.stats.map(x => [x.time*1000, x.min, x.max])
 
     Highcharts.setOptions(
         {
@@ -12,9 +16,6 @@ function render(array){
     )
 
     Highcharts.chart('container', {
-        chart: {
-            type: 'spline'
-        },
         title: {
             text: 'Production',
             align: 'left'
@@ -31,8 +32,27 @@ function render(array){
             },
             min: 0
         },
-        colors: ['#6CF', '#39F', '#06C', '#036', '#000'],
+        colors: ['#6CF', '#aaF', '#aaF', '#aaF'],
         series: [{
+            type: 'areasplinerange',
+            name: 'Min/Max',
+            data: stats,
+            opacity: .5,
+            color: {
+                linearGradient: {
+                    x1: 0,
+                    x2: 0,
+                    y1: 0,
+                    y2: 1
+                },
+                stops: [
+                    [0, '#ff0000'],
+                    [1, '#0000ff']
+                ]
+            },
+            marker: { enabled: false }
+        },{
+            type: 'spline',
             name: 'Production',
             data: data
         }]

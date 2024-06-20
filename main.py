@@ -49,7 +49,6 @@ if __name__ == "__main__":
         if previous != p.watts:
             p.commit() # no need to repeat the same value
         previous = p.watts
-        print (points.get_points())
         if p.watts > 0.0:
             time.sleep(30) # 30 seconds if we're producing
         else:

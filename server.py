@@ -1,5 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from points import get_points
+from points import get_points, get_stats
 import json
 from flask import Flask
 from flask import send_from_directory
@@ -20,7 +20,10 @@ def production():
     prod = []
     for p in points:
         prod.append(p.to_dict())
-    d = {"production": prod}  
+    d = {
+        "production": prod,
+        "stats"     : get_stats(),
+    }  
     return json.dumps(d).encode('utf8')
 
 if __name__ == '__main__':
