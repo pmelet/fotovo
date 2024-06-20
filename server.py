@@ -1,7 +1,6 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from points import get_points
 import json
-from collections import defaultdict
 
 class PointsRequestHandler (BaseHTTPRequestHandler):
     def do_GET(self):

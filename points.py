@@ -3,7 +3,9 @@ import configuration
 import points
 import sqlite3 as sql
 import time
+from os.path import join, dirname
 
+_DATABASE = join(dirname(__file__), 'production.db')
 
 class Point:
     def __init__(self, time, readtime, watts, active):
@@ -13,7 +15,7 @@ class Point:
         self.active = active
 
     def commit(self):
-        con = sql.connect('production.db') 
+        con = sql.connect(_DATABASE) 
         cur = con.cursor()
         q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Active) VALUES (?, ?, ?, ?);"""
         cur.execute(q, (self.time, self.readtime, self.watts, self.active))
@@ -32,7 +34,7 @@ class Point:
         return f"{self.time}: {self.watts} ({self.active})"
 
 def get_points():
-        con = sql.connect('production.db') 
+        con = sql.connect(_DATABASE) 
         cur = con.cursor()
         q = """SELECT Time, Readtime, Watts, Active FROM production;"""
         cur.execute(q)
@@ -47,7 +49,7 @@ def get_points():
 
 def setup_database():
     try:
-        con = sql.connect('production.db') 
+        con = sql.connect(_DATABASE) 
         cur = con.cursor()     
         cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Readtime INT, Watts REAL, Active INT)") 
         con.commit() 
