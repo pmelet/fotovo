@@ -16,7 +16,9 @@ function render(array){
             title: {
                 text: 'Time'
             },
-            timezone: 'Europe/Paris',
+            time : {
+                timezone: 'Europe/Paris',
+            },
         },
         yAxis: {
             title: {
