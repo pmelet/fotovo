@@ -1,6 +1,6 @@
 import sqlite3 as sql
 from os.path import join, dirname
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import time
 import pytz
 
@@ -64,7 +64,7 @@ def get_stats():
     for p in points:
         slot, avg, min, max = p
         #dt = timezone.localize(datetime.strptime(slot, "%Y-%m-%d %H:%M"))
-        dt = datetime.strptime(slot, "%Y-%m-%d %H:%M")
+        dt = datetime.strptime(slot, "%Y-%m-%d %H:%M") + timedelta(minutes=30)
         epoch = time.mktime(dt.timetuple())
         ret.append({
             "time": dt.replace(tzinfo=pytz.utc).timestamp(),
