@@ -57,6 +57,7 @@ function render(array){
             name: "Moyenne",
             data: avg,
             dashStyle: "dot",
+            marker: { enabled: false }
         },{
             type: 'spline',
             name: 'Production',
