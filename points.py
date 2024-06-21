@@ -45,7 +45,7 @@ def get_points():
     con = sql.connect(_DATABASE) 
     cur = con.cursor()
     f = datetime.strptime(date.today().strftime("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S").timestamp()
-    q = f"""SELECT Time, Readtime, Watts, Active FROM production WHERE Time > {f};"""
+    q = f"""SELECT Time, Readtime, Watts, Active FROM production WHERE Time > {f} AND Active > 0;"""
     cur.execute(q)
     points = cur.fetchall()
     con.commit()
