@@ -54,8 +54,8 @@ function render(array){
             marker: { enabled: false }
         },{
             type: 'spline',
-            name: "yesterday",
-            data: yesterday,
+            name: "Moyenne",
+            data: avg,
             dashStyle: "dot",
         },{
             type: 'spline',
