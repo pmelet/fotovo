@@ -46,7 +46,7 @@ def get_points(delta=timedelta(seconds=0)):
     cur = con.cursor()
     fordate = date.today()-delta
     f = datetime.strptime(fordate.strftime("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S").timestamp()
-    q = f"""SELECT Time, Readtime, Watts, Active FROM production WHERE Time > {f} AND Active > 0;"""
+    q = f"""SELECT Time, Readtime, Watts, Active FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+86400};"""
     cur.execute(q)
     points = cur.fetchall()
     con.commit()
