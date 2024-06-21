@@ -59,13 +59,19 @@ def get_stats():
     #timezone = pytz.timezone("Europe/Paris")
     con = sql.connect(_DATABASE) 
     cur = con.cursor()
-    q = f"""select 
-        strftime("{date.today().strftime("%Y-%m-%d")} %H:00", datetime(Time, 'unixepoch')), 
-        avg(Watts), 
-        min(Watts), 
-        max(Watts) 
-    from production 
-    group by 1;"""
+    f = int(datetime.strftime(date.today(), "%j"))
+    # only take the last 14 days
+    # TODO: replace with the known value for the same day of year +/- 14days
+    q = f"""SELECT
+            strftime("{date.today().strftime("%Y-%m-%d")} %H:00", datetime(Time, 'unixepoch')), 
+            avg(Watts), 
+            min(Watts), 
+            max(Watts) 
+        FROM production 
+        WHERE
+            strftime("%j", datetime(Time, 'unixepoch')) BETWEEN "{f-14}" AND "{f+14}"
+        GROUP by 1;"""
+    print (q)
     cur.execute(q)
     points = cur.fetchall()
     con.commit()

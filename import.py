@@ -22,4 +22,5 @@ def import_file(path):
     points.Point.bulkCommit(ps)
 
 if __name__ == "__main__":
-    import_file(sys.argv[1])
+    for path in sys.argv[1:]:
+        import_file(path)
