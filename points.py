@@ -21,6 +21,15 @@ class Point:
         con.commit()
         con.close()
 
+    @staticmethod
+    def bulkCommit(array):
+        con = sql.connect(_DATABASE) 
+        cur = con.cursor()
+        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Active) VALUES (?, ?, ?, ?);"""
+        cur.executemany(q, [(self.time, self.readtime, self.watts, self.active) for self in array])
+        con.commit()
+        con.close()        
+
     def to_dict(self):
         return {
             "time": self.time,
