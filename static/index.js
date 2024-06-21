@@ -2,6 +2,7 @@
 function render(array){
 
     data = array.production.map(x => [x.time*1000, x.watts])
+    yesterday = array.yesterday.map(x => [x.time*1000, x.watts])
     avg = array.stats.map(x => [x.time*1000, x.avg])
     min = array.stats.map(x => [x.time*1000, x.min])
     max = array.stats.map(x => [x.time*1000, x.max])
@@ -51,6 +52,11 @@ function render(array){
                 ]
             },
             marker: { enabled: false }
+        },{
+            type: 'spline',
+            name: "yesterday",
+            data: yesterday,
+            dashStyle: "dot",
         },{
             type: 'spline',
             name: 'Production',

@@ -41,9 +41,10 @@ class Point:
     def __str__(self):
         return f"{self.time}: {self.watts} ({self.active})"
 
-def get_points(fordate=date.today()):
+def get_points(delta=timedelta(seconds=0)):
     con = sql.connect(_DATABASE) 
     cur = con.cursor()
+    fordate = date.today()-delta
     f = datetime.strptime(fordate.strftime("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S").timestamp()
     q = f"""SELECT Time, Readtime, Watts, Active FROM production WHERE Time > {f} AND Active > 0;"""
     cur.execute(q)
@@ -52,7 +53,9 @@ def get_points(fordate=date.today()):
     con.close()
     ret = []
     for p in points:
-        ret.append(Point(*p))
+        Time, Readtime, Watts, Active = p
+        Time = Time + delta.total_seconds()
+        ret.append(Point(Time, Readtime, Watts, Active))
     return ret
 
 def get_stats():

@@ -22,7 +22,7 @@ def production():
     for p in get_points():
         prod.append(p.to_dict())
     
-    for p in get_points(fordate=date.today()-timedelta(days=1)):
+    for p in get_points(delta=timedelta(days=1)):
         yesterday.append(p.to_dict())
     d = {
         "production": prod,
