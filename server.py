@@ -3,6 +3,7 @@ from points import get_points, get_stats
 import json
 from flask import Flask
 from flask import send_from_directory
+from datetime import date, timedelta
 
 app = Flask(__name__)
 
@@ -16,12 +17,16 @@ def index():
 
 @app.route("/production")
 def production():
-    points = get_points()
     prod = []
-    for p in points:
+    yesterday = []
+    for p in get_points():
         prod.append(p.to_dict())
+    
+    for p in get_points(fordate=date.today()-timedelta(days=1)):
+        yesterday.append(p.to_dict())
     d = {
         "production": prod,
+        "yesterday" : yesterday,
         "stats"     : get_stats(),
     }  
     return json.dumps(d).encode('utf8')
