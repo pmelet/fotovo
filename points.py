@@ -110,7 +110,12 @@ def setup_database():
     try:
         con = sql.connect(_DATABASE) 
         cur = con.cursor()     
-        cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Readtime INT, Watts REAL, Lifetime REAL, Active INT)") 
+        cur.execute(f"CREATE TABLE IF NOT EXISTS production(
+                    Time INTEGER PRIMARY KEY, 
+                    Readtime INT, Watts REAL, 
+                    CalcWatts REAL, 
+                    Lifetime REAL, 
+                    Active INT)") 
         con.commit() 
     except Exception as e: 
         if con: 
