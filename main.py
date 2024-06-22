@@ -42,11 +42,11 @@ def get_production_info(session):
 if __name__ == "__main__":
     points.setup_database()
     session = get_session_cookie()
-    previous = 0
+    previous = None
     while True:
         p = get_production_info(session)
         print (p)
-        if previous.watts != p.watts or p.time - previous.time > 3600:
+        if previous is None or previous.watts != p.watts or p.time - previous.time > 3600:
             p.commit() # no need to repeat the same value more than every hour
         previous = p
         if p.watts > 0.0:
