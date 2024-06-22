@@ -46,16 +46,19 @@ def get_points(delta=timedelta(seconds=0)):
     cur = con.cursor()
     fordate = date.today()-delta
     f = datetime.strptime(fordate.strftime("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S").timestamp()
-    q = f"""SELECT Time, Readtime, Watts, Active FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+86400};"""
+    q = f"""SELECT 
+                strftime("{date.today().strftime("%Y-%m-%d")} %H:%M:%S", datetime(Time, 'unixepoch')), 
+                Readtime, 
+                Watts, Active FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+delta.total_seconds()};"""
     cur.execute(q)
     points = cur.fetchall()
     con.commit()
     con.close()
     ret = []
     for p in points:
-        Time, Readtime, Watts, Active = p
-        Time = Time + delta.total_seconds()
-        ret.append(Point(Time, Readtime, Watts, Active))
+        TimeStr, Readtime, Watts, Active = p
+        dt = datetime.strptime(TimeStr, "%Y-%m-%d %H:%M:%S")
+        ret.append(Point(dt.replace(tzinfo=pytz.utc).timestamp(), Readtime, Watts, Active))
     return ret
 
 def get_stats(days=14):
@@ -84,7 +87,6 @@ def get_stats(days=14):
         slot, avg, min, max = p
         #dt = timezone.localize(datetime.strptime(slot, "%Y-%m-%d %H:%M"))
         dt = datetime.strptime(slot, "%Y-%m-%d %H:%M") + timedelta(minutes=30)
-        epoch = time.mktime(dt.timetuple())
         ret.append({
             "time": dt.replace(tzinfo=pytz.utc).timestamp(),
             "min":  min,
