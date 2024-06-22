@@ -46,9 +46,9 @@ if __name__ == "__main__":
     while True:
         p = get_production_info(session)
         print (p)
-        if previous != p.watts:
-            p.commit() # no need to repeat the same value
-        previous = p.watts
+        if previous.watts != p.watts or p.time - previous.time > 3600:
+            p.commit() # no need to repeat the same value more than every hour
+        previous = p
         if p.watts > 0.0:
             time.sleep(30) # 30 seconds if we're producing
         else:
