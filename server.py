@@ -22,12 +22,12 @@ def production():
     for p in get_points():
         prod.append(p.to_dict())
     
-    for p in get_points(delta=timedelta(days=1)):
+    for p in get_points(delta=timedelta(days=14)):
         yesterday.append(p.to_dict())
     d = {
         "production": prod,
         "yesterday" : yesterday,
-        "stats"     : get_stats(),
+        "stats"     : get_stats(days=14),
     }  
     return json.dumps(d).encode('utf8')
 

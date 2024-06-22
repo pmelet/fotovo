@@ -58,7 +58,7 @@ def get_points(delta=timedelta(seconds=0)):
         ret.append(Point(Time, Readtime, Watts, Active))
     return ret
 
-def get_stats():
+def get_stats(days=14):
     #timezone = pytz.timezone("Europe/Paris")
     con = sql.connect(_DATABASE) 
     cur = con.cursor()
@@ -72,7 +72,7 @@ def get_stats():
             max(Watts) 
         FROM production 
         WHERE
-            strftime("%j", datetime(Time, 'unixepoch')) BETWEEN "{f-14}" AND "{f+14}"
+            strftime("%j", datetime(Time, 'unixepoch')) BETWEEN "{f-days}" AND "{f+days}"
         GROUP by 1;"""
     print (q)
     cur.execute(q)
