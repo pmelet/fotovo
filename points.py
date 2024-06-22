@@ -7,7 +7,7 @@ import pytz
 _DATABASE = join(dirname(__file__), 'production.db')
 
 class Point:
-    def __init__(self, time, lifetime, readtime, watts, active):
+    def __init__(self, time, readtime, watts, lifetime, active):
         self.time = time
         self.lifetime = lifetime
         self.readtime = readtime
@@ -51,16 +51,25 @@ def get_points(delta=timedelta(seconds=0)):
     q = f"""SELECT 
                 strftime("{date.today().strftime("%Y-%m-%d")} %H:%M:%S", datetime(Time, 'unixepoch')), 
                 Readtime, 
-                Watts, Active FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+(delta+timedelta(days=1)).total_seconds()};"""
+                Watts, 
+                Lifetime,
+                Active 
+            FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+(delta+timedelta(days=1)).total_seconds()};"""
     cur.execute(q)
     points = cur.fetchall()
     con.commit()
     con.close()
     ret = []
     for p in points:
-        TimeStr, Readtime, Watts, Active = p
+        TimeStr, Readtime, Watts, Lifetime, Active = p
         dt = datetime.strptime(TimeStr, "%Y-%m-%d %H:%M:%S")
-        ret.append(Point(dt.replace(tzinfo=pytz.utc).timestamp(), Readtime, Watts, Active))
+        ret.append(Point(
+            time=dt.replace(tzinfo=pytz.utc).timestamp(), 
+            readtime=Readtime, 
+            watts=Watts, 
+            lifetime=Lifetime, 
+            active=Active
+        ))
     return ret
 
 def get_stats(days=14):
@@ -101,7 +110,7 @@ def setup_database():
     try:
         con = sql.connect(_DATABASE) 
         cur = con.cursor()     
-        cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Readtime INT, Watts REAL, Lifetime REAL,  Active INT)") 
+        cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Readtime INT, Watts REAL, Lifetime REAL, Active INT)") 
         con.commit() 
     except Exception as e: 
         if con: 
