@@ -49,7 +49,7 @@ def get_points(delta=timedelta(seconds=0)):
     q = f"""SELECT 
                 strftime("{date.today().strftime("%Y-%m-%d")} %H:%M:%S", datetime(Time, 'unixepoch')), 
                 Readtime, 
-                Watts, Active FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+delta.total_seconds()};"""
+                Watts, Active FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+(delta+timedelta(days=1)).total_seconds()};"""
     cur.execute(q)
     points = cur.fetchall()
     con.commit()
