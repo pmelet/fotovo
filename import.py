@@ -19,7 +19,7 @@ def import_file(path):
             except Exception as e:
                 print ("skip", row, e)
                 continue
-            ps.append(points.Point(time=timestamp, readtime=-1, watts=watts, active=-1))
+            ps.append(points.Point(time=timestamp, readtime=-1, watts=watts, lifetime=-1, active=-1))
     
     points.Point.bulkCommit(ps)
 
