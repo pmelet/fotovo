@@ -35,6 +35,7 @@ def get_production_info(session):
     return points.Point(
         time     = int(time.time()),
         readtime = p['readingTime'],
+        lifetime = p['whLifetime'],
         active   = p['activeCount'],
         watts    = p['wNow'],
     )

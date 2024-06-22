@@ -7,8 +7,9 @@ import pytz
 _DATABASE = join(dirname(__file__), 'production.db')
 
 class Point:
-    def __init__(self, time, readtime, watts, active):
+    def __init__(self, time, lifetime, readtime, watts, active):
         self.time = time
+        self.lifetime = lifetime
         self.readtime = readtime
         self.watts = watts
         self.active = active
@@ -16,8 +17,8 @@ class Point:
     def commit(self):
         con = sql.connect(_DATABASE) 
         cur = con.cursor()
-        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Active) VALUES (?, ?, ?, ?);"""
-        cur.execute(q, (self.time, self.readtime, self.watts, self.active))
+        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Lifetime, Active) VALUES (?, ?, ?, ?, ?);"""
+        cur.execute(q, (self.time, self.readtime, self.watts, self.lifetime, self.active))
         con.commit()
         con.close()
 
@@ -25,8 +26,8 @@ class Point:
     def bulkCommit(array):
         con = sql.connect(_DATABASE) 
         cur = con.cursor()
-        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Active) VALUES (?, ?, ?, ?);"""
-        cur.executemany(q, [(self.time, self.readtime, self.watts, self.active) for self in array])
+        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Lifetime, Active) VALUES (?, ?, ?, ?);"""
+        cur.executemany(q, [(self.time, self.readtime, self.watts, self.lifetime, self.active) for self in array])
         con.commit()
         con.close()        
 
@@ -35,6 +36,7 @@ class Point:
             "time": self.time,
             "readtime" : self.readtime,
             "watts" : self.watts,
+            "lifetime": self.lifetime,
             "active": self.active,
         }
 
@@ -99,7 +101,7 @@ def setup_database():
     try:
         con = sql.connect(_DATABASE) 
         cur = con.cursor()     
-        cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Readtime INT, Watts REAL, Active INT)") 
+        cur.execute(f"CREATE TABLE IF NOT EXISTS production(Time INTEGER PRIMARY KEY, Readtime INT, Watts REAL, Lifetime REAL,  Active INT)") 
         con.commit() 
     except Exception as e: 
         if con: 
