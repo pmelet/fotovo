@@ -88,7 +88,7 @@ function draw(){
             type: 'spline',
             name: 'Production',
             data: [],
-            lineWidth: 10,
+            lineWidth: 5,
             marker: { enabled: false },
             color: 'red',
         }]
