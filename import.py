@@ -21,7 +21,7 @@ def import_file(path):
                 continue
             ps.append(points.Point(time=timestamp, readtime=-1, watts=watts, lifetime=-1, active=-1))
     
-    points.Point.bulkCommit(ps)
+    points.Point.bulkCommit(ps, source=points._ENPHASE)
 
 if __name__ == "__main__":
     for path in sys.argv[1:]:

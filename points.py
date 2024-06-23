@@ -6,28 +6,39 @@ import pytz
 
 _DATABASE = join(dirname(__file__), 'production.db')
 
+_ENVOY = "Envoy"
+_ENPHASE = "Enphase"
+
 class Point:
-    def __init__(self, time, readtime, watts, lifetime, active):
+    def __init__(self, time, readtime, watts, lifetime, active, source=_ENVOY):
         self.time = time
         self.lifetime = lifetime
         self.readtime = readtime
         self.watts = watts
         self.active = active
+        self.source = source
 
     def commit(self):
         con = sql.connect(_DATABASE) 
         cur = con.cursor()
-        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Lifetime, Active) VALUES (?, ?, ?, ?, ?);"""
-        cur.execute(q, (self.time, self.readtime, self.watts, self.lifetime, self.active))
+        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Lifetime, Active, Source) VALUES (?, ?, ?, ?, ?, ?);"""
+        cur.execute(q, (self.time, self.readtime, self.watts, self.lifetime, self.active, self.source))
         con.commit()
         con.close()
 
     @staticmethod
-    def bulkCommit(array):
+    def bulkCommit(array, source=_ENPHASE):
         con = sql.connect(_DATABASE) 
         cur = con.cursor()
-        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Lifetime, Active) VALUES (?, ?, ?, ?);"""
-        cur.executemany(q, [(self.time, self.readtime, self.watts, self.lifetime, self.active) for self in array])
+        q = """INSERT OR REPLACE INTO production (Time, Readtime, Watts, Lifetime, Active, Source) VALUES (?, ?, ?, ?, ?, ?);"""
+        cur.executemany(q, [(
+            self.time, 
+            self.readtime, 
+            self.watts, 
+            self.lifetime, 
+            self.active, 
+            self.source or source
+        ) for self in array])
         con.commit()
         con.close()        
 
@@ -38,6 +49,7 @@ class Point:
             "watts" : self.watts,
             "lifetime": self.lifetime,
             "active": self.active,
+            "source": self.source,
         }
 
     def __str__(self):
@@ -55,7 +67,8 @@ def get_points():
                 Readtime, 
                 Watts, 
                 Lifetime,
-                Active 
+                Active,
+                Source
             FROM production WHERE Active > 0 AND Time >= {f};"""
     cur.execute(q)
     points = cur.fetchall()
@@ -63,13 +76,14 @@ def get_points():
     con.close()
     ret = []
     for p in points:
-        Time, Readtime, Watts, Lifetime, Active = p
+        Time, Readtime, Watts, Lifetime, Active, Source = p
         ret.append(Point(
             time=Time, #dt.replace(tzinfo=pytz.utc).timestamp(), 
             readtime=Readtime, 
             watts=Watts, 
             lifetime=Lifetime, 
-            active=Active
+            active=Active,
+            source=Source,
         ))
     return ret
 
@@ -85,7 +99,8 @@ def get_hist_points(delta=timedelta(days=1)):
                 Readtime, 
                 Watts, 
                 Lifetime,
-                Active 
+                Active,
+                Source
             FROM production WHERE Active > 0 AND Time BETWEEN {f} AND {f+(delta+timedelta(days=1)).total_seconds()};"""
     cur.execute(q)
     points = cur.fetchall()
@@ -93,14 +108,15 @@ def get_hist_points(delta=timedelta(days=1)):
     con.close()
     ret = []
     for p in points:
-        TimeStr, Time, Readtime, Watts, Lifetime, Active = p
+        TimeStr, _, Readtime, Watts, Lifetime, Active, Source = p
         dt = datetime.strptime(TimeStr, "%Y-%m-%d %H:%M:%S")
         ret.append(Point(
             time=dt.replace(tzinfo=pytz.utc).timestamp(), 
             readtime=Readtime, 
             watts=Watts, 
             lifetime=Lifetime, 
-            active=Active
+            active=Active,
+            source=Source,
         ))
     return ret
 
@@ -147,7 +163,8 @@ def setup_database():
                     Readtime INT, Watts REAL, 
                     CalcWatts REAL, 
                     Lifetime REAL, 
-                    Active INT)""") 
+                    Active INT,
+                    Source TEXT)""") 
         con.commit() 
     except Exception as e: 
         if con: 
