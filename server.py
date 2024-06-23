@@ -1,5 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from points import get_points, get_stats
+from points import get_points, get_stats, get_hist_points
 import json
 from flask import Flask
 from flask import send_from_directory
@@ -22,7 +22,7 @@ def production():
     for p in get_points():
         prod.append(p.to_dict())
     
-    for p in get_points(delta=timedelta(days=14)):
+    for p in get_hist_points(delta=timedelta(days=14)):
         yesterday.append(p.to_dict())
     d = {
         "production": prod,

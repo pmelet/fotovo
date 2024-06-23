@@ -1,6 +1,6 @@
 import sqlite3 as sql
 from os.path import join, dirname
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time as dtime
 import time
 import pytz
 
@@ -43,13 +43,45 @@ class Point:
     def __str__(self):
         return f"{self.time}: {self.watts} ({self.active})"
 
-def get_points(delta=timedelta(seconds=0)):
+def get_points():
+    timezone = pytz.timezone("Europe/Paris")
+    con = sql.connect(_DATABASE) 
+    cur = con.cursor()
+    f = datetime.combine(date.today(), dtime()).timestamp()
+    #print (df)
+    #f = datetime.strptime(df, "%Y-%m-%d %H:%M:%S %Z").timestamp()
+    q = f"""SELECT 
+                Time,
+                Readtime, 
+                Watts, 
+                Lifetime,
+                Active 
+            FROM production WHERE Active > 0 AND Time >= {f};"""
+    cur.execute(q)
+    points = cur.fetchall()
+    con.commit()
+    con.close()
+    ret = []
+    for p in points:
+        Time, Readtime, Watts, Lifetime, Active = p
+        ret.append(Point(
+            time=Time, #dt.replace(tzinfo=pytz.utc).timestamp(), 
+            readtime=Readtime, 
+            watts=Watts, 
+            lifetime=Lifetime, 
+            active=Active
+        ))
+    return ret
+
+
+def get_hist_points(delta=timedelta(days=1)):
     con = sql.connect(_DATABASE) 
     cur = con.cursor()
     fordate = date.today()-delta
     f = datetime.strptime(fordate.strftime("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S").timestamp()
     q = f"""SELECT 
                 strftime("{date.today().strftime("%Y-%m-%d")} %H:%M:%S", datetime(Time, 'unixepoch')), 
+                Time,
                 Readtime, 
                 Watts, 
                 Lifetime,
@@ -61,7 +93,7 @@ def get_points(delta=timedelta(seconds=0)):
     con.close()
     ret = []
     for p in points:
-        TimeStr, Readtime, Watts, Lifetime, Active = p
+        TimeStr, Time, Readtime, Watts, Lifetime, Active = p
         dt = datetime.strptime(TimeStr, "%Y-%m-%d %H:%M:%S")
         ret.append(Point(
             time=dt.replace(tzinfo=pytz.utc).timestamp(), 
